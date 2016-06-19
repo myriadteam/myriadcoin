@@ -13,7 +13,6 @@
 #include "crypto/yescrypt.h"
 #include "hash.h"
 #include "utilstrencodings.h"
-#include "myriad_params.h"
 
 uint256 CPureBlockHeader::GetHash() const
 {
@@ -36,17 +35,14 @@ uint256 CPureBlockHeader::GetPoWHash(int algo) const
             return HashGroestl(BEGIN(nVersion), END(nNonce));
         case ALGO_SKEIN:
             return HashSkein(BEGIN(nVersion), END(nNonce));
-        case ALGO_CPU:
-            if(nTime >= nTimeYescryptStart)
-            {
-                    uint256 thash;
-                    yescrypt_hash(BEGIN(nVersion), BEGIN(thash));
-                    return thash;                
-            }
-            else
-            {
-                return HashQubit(BEGIN(nVersion), END(nNonce));
-            }
+        case ALGO_QUBIT:
+            return HashQubit(BEGIN(nVersion), END(nNonce));
+		case ALGO_YESCRYPT:
+        {
+		    uint256 thash;
+		    yescrypt_hash(BEGIN(nVersion), BEGIN(thash));
+		    return thash;
+		}
     }
     return GetHash();
 }
@@ -63,13 +59,15 @@ int GetAlgo(int nVersion)
             return ALGO_GROESTL;
         case BLOCK_VERSION_SKEIN:
             return ALGO_SKEIN;
-        case BLOCK_VERSION_CPU:
-            return ALGO_CPU;
+        case BLOCK_VERSION_QUBIT:
+            return ALGO_QUBIT;
+        case BLOCK_VERSION_YESCRYPT:
+            return ALGO_YESCRYPT;
     }
     return ALGO_SHA256D;
 }
 
-std::string GetAlgoName(int Algo, uint32_t time)
+std::string GetAlgoName(int Algo)
 {
     switch (Algo)
     {
@@ -81,15 +79,10 @@ std::string GetAlgoName(int Algo, uint32_t time)
             return std::string("groestl");
         case ALGO_SKEIN:
             return std::string("skein");
-        case ALGO_CPU:
-            if(time >= nTimeYescryptStart)
-            {
-                return std::string("yescrypt");
-            }
-            else
-            {
-                return std::string("qubit");
-            }
+        case ALGO_QUBIT:
+            return std::string("qubit");
+		case ALGO_YESCRYPT:
+            return std::string("yescrypt");
     }
     return std::string("unknown");       
 }

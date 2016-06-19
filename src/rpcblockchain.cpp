@@ -12,7 +12,6 @@
 #include "rpcserver.h"
 #include "sync.h"
 #include "util.h"
-#include "myriad_params.h"
 
 #include <stdint.h>
 
@@ -109,7 +108,7 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool txDe
     result.push_back(Pair("version", block.nVersion.GetFullVersion()));
     int algo = block.GetAlgo();
     result.push_back(Pair("pow_algo_id", algo));
-    result.push_back(Pair("pow_algo", GetAlgoName(algo, block.GetBlockTime())));
+    result.push_back(Pair("pow_algo", GetAlgoName(algo)));
     result.push_back(Pair("pow_hash", block.GetPoWHash(algo).GetHex()));
     result.push_back(Pair("merkleroot", block.hashMerkleRoot.GetHex()));
     Array txs;
@@ -597,14 +596,8 @@ Value getblockchaininfo(const Array& params, bool fHelp)
     obj.push_back(Pair("difficulty_scrypt",     (double)GetDifficulty(NULL, ALGO_SCRYPT)));
     obj.push_back(Pair("difficulty_groestl",    (double)GetDifficulty(NULL, ALGO_GROESTL)));
     obj.push_back(Pair("difficulty_skein",      (double)GetDifficulty(NULL, ALGO_SKEIN)));
-    if(GetTime() >= nTimeYescryptStart)
-    {
-        obj.push_back(Pair("difficulty_yescrypt",(double)GetDifficulty(NULL, ALGO_CPU)));
-    }
-    else
-    {
-        obj.push_back(Pair("difficulty_qubit",   (double)GetDifficulty(NULL, ALGO_CPU)));
-    }
+    obj.push_back(Pair("difficulty_qubit",      (double)GetDifficulty(NULL, ALGO_QUBIT)));
+    obj.push_back(Pair("difficulty_yescrypt",   (double)GetDifficulty(NULL, ALGO_YESCRYPT)));
     obj.push_back(Pair("verificationprogress",  Checkpoints::GuessVerificationProgress(Params().Checkpoints(), chainActive.Tip())));
     obj.push_back(Pair("chainwork",             chainActive.Tip()->nChainWork.GetHex()));
     obj.push_back(Pair("pruned",                fPruneMode));

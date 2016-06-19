@@ -18,7 +18,6 @@
 #include "timedata.h"
 #include "util.h"
 #include "utilmoneystr.h"
-#include "myriad_params.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
@@ -811,17 +810,13 @@ void static ThreadMiner(CWallet *pwallet)
                 LogPrintf("MyriadMiner[Skein] miner started\n");
                 GenericMiner(pwallet, ALGO_SKEIN);
                 break;
-            case ALGO_CPU:
-                if(GetTime() >= nTimeYescryptStart)
-                {
-                    LogPrintf("MyriadMiner[Yescrypt] miner started\n");
-                    GenericMiner(pwallet, ALGO_CPU); // could be replaced with a decent yescrypt miner in the style of scrypt, but how much need?
-                }
-                else
-                {
-                    LogPrintf("MyriadMiner[Qubit] miner started\n");
-                    GenericMiner(pwallet, ALGO_CPU);
-                }
+            case ALGO_QUBIT:
+                LogPrintf("MyriadMiner[Qubit] miner started\n");
+                GenericMiner(pwallet, ALGO_QUBIT);
+                break;
+            case ALGO_YESCRYPT:
+                LogPrintf("MyriadMiner[Yescrypt] miner started\n");
+                GenericMiner(pwallet, ALGO_YESCRYPT); // could be replaced with a decent yescrypt miner in the style of scrypt, but how much need?
                 break;
         }
     }

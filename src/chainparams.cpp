@@ -69,6 +69,7 @@ public:
         consensus.nBlockAlgoNormalisedWorkDecayStart1 = 866000; // block where weight decay starts
         consensus.nBlockAlgoNormalisedWorkDecayStart2 = 932000; // block where weight decay starts
         consensus.nGeoAvgWork_Start = 1400000;
+        consensus.nAlgoSwitchBlock1 = 100000000;
         
         /** 
          * The message start string is designed to be unlikely to occur in normal data.

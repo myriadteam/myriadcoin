@@ -740,8 +740,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         miningAlgo = ALGO_GROESTL;
     else if (strAlgo == "skein" || strAlgo == "skeinsha2")
         miningAlgo = ALGO_SKEIN;
-    else if (strAlgo == "q2c" || strAlgo == "qubit" || strAlgo == "yescrypt")
-        miningAlgo = ALGO_CPU;
+    else if (strAlgo == "q2c" || strAlgo == "qubit")
+        miningAlgo = ALGO_QUBIT;
+    else if (strAlgo == "yescrypt")
+        miningAlgo = ALGO_YESCRYPT;
     else
         miningAlgo = ALGO_SHA256D;
     

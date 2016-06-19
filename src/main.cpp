@@ -2249,7 +2249,7 @@ void static UpdateTip(CBlockIndex *pindexNew) {
     mempool.AddTransactionsUpdated(1);
 
     LogPrintf("%s: new best=%s height=%d algo=%d (%s) log2_work=%.8g tx=%lu date=%s progress=%f cache=%.1fMiB(%utx)\n", __func__,
-      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), chainActive.Tip()->GetAlgo(), GetAlgoName(chainActive.Tip()->GetAlgo(), chainActive.Tip()->GetBlockTime()), 
+      chainActive.Tip()->GetBlockHash().ToString(), chainActive.Height(), chainActive.Tip()->GetAlgo(), GetAlgoName(chainActive.Tip()->GetAlgo()), 
       log(chainActive.Tip()->nChainWork.getdouble())/log(2.0), (unsigned long)chainActive.Tip()->nChainTx,
       DateTimeStrFormat("%Y-%m-%d %H:%M:%S", chainActive.Tip()->GetBlockTime()),
       Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), chainActive.Tip()), pcoinsTip->DynamicMemoryUsage() * (1.0 / (1<<20)), pcoinsTip->GetCacheSize());
@@ -2935,7 +2935,7 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.DoS(100, error("%s : auxpow blocks are not allowed at height %d, parameters effective from %d",
                                     __func__, pindexPrev->nHeight + 1, consensusParams.nStartAuxPow),
                          REJECT_INVALID, "early-auxpow-block");
-                         
+
     // Check proof of work
     if (block.nBits != GetNextWorkRequired(pindexPrev, &block, consensusParams, algo))
         return state.DoS(100, error("%s: incorrect proof of work at height %d", __func__, nHeight),
@@ -2945,6 +2945,14 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
     if (block.GetBlockTime() <= pindexPrev->GetMedianTimePast())
         return state.Invalid(error("%s: block's timestamp is too early", __func__),
                              REJECT_INVALID, "time-too-old");
+
+	// Check valid algo
+	if ( (algo == ALGO_QUBIT) && (nHeight >= consensusParams.nAlgoSwitchBlock1) )
+        return state.Invalid(error("%s: invalid QUBIT block", __func__),
+                             REJECT_INVALID, "invalid-algo");
+	if ( (algo == ALGO_YESCRYPT) && (nHeight < consensusParams.nAlgoSwitchBlock1) )
+        return state.Invalid(error("%s: invalid YESCRYPT block", __func__),
+                             REJECT_INVALID, "invalid-algo");
 
     if(fCheckpointsEnabled)
     {
@@ -3047,17 +3055,17 @@ bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBloc
             int nAlgoCount = 1;
             CBlockIndex* piPrev = pindexPrev;
 
-            int maxCount = chainparams.GetConsensus().nBlockSequentialAlgoMaxCount1;
-            if(chainparams.GetConsensus().nBlockSequentialAlgoMaxCount2 > maxCount)
-            {
-                maxCount = chainparams.GetConsensus().nBlockSequentialAlgoMaxCount2;
-            }
-            if(chainparams.GetConsensus().nBlockSequentialAlgoMaxCount3 > maxCount)
-            {
-                maxCount = chainparams.GetConsensus().nBlockSequentialAlgoMaxCount3;
-            }
+            // Maximum sequence count allowed
+            int nMaxSeqCount;
+            if (nHeight > chainparams.GetConsensus().nBlockSequentialAlgoRuleStart3)
+                nMaxSeqCount = chainparams.GetConsensus().nBlockSequentialAlgoMaxCount3;
+            else
+                if (nHeight > chainparams.GetConsensus().nBlockSequentialAlgoRuleStart2)
+                    nMaxSeqCount = chainparams.GetConsensus().nBlockSequentialAlgoMaxCount2;
+                    else
+                        nMaxSeqCount = chainparams.GetConsensus().nBlockSequentialAlgoMaxCount1;
 
-            while (piPrev!=NULL && (nAlgoCount <= maxCount))
+            while (piPrev!=NULL && (nAlgoCount <= nMaxSeqCount))
             {
                 if (piPrev->GetAlgo() != nAlgo)
                     break;
@@ -3065,38 +3073,13 @@ bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBloc
                 piPrev = piPrev->pprev;
             }
 
-            if (nHeight > chainparams.GetConsensus().nBlockSequentialAlgoRuleStart3)
+            if(fDebug)
             {
-                if(fDebug)
-                {
-                    LogPrintf("SequentialAlgoRule3 DEBUG: nHeight: %d, nAlgoCount: %d\n", nHeight, nAlgoCount);
-                }
-                if (nAlgoCount > chainparams.GetConsensus().nBlockSequentialAlgoMaxCount3)
-                {
-                    return state.DoS(100, error("%s: too many blocks from same algo", __func__),REJECT_INVALID, "algo-toomany");
-                }
+                LogPrintf("SequentialAlgoRule DEBUG: nHeight: %d, nAlgoCount: %d, nMaxSeqCount: %d\n", nHeight, nAlgoCount, nMaxSeqCount);
             }
-            else if (nHeight > chainparams.GetConsensus().nBlockSequentialAlgoRuleStart2)
+            if (nAlgoCount > nMaxSeqCount)
             {
-                if(fDebug)
-                {
-                    LogPrintf("SequentialAlgoRule2 DEBUG: nHeight: %d, nAlgoCount: %d\n", nHeight, nAlgoCount);
-                }
-                if (nAlgoCount > chainparams.GetConsensus().nBlockSequentialAlgoMaxCount2)
-                {
-                    return state.DoS(100, error("%s: too many blocks from same algo", __func__),REJECT_INVALID, "algo-toomany");
-                }
-            }
-            else if (nAlgoCount > chainparams.GetConsensus().nBlockSequentialAlgoMaxCount1)
-            {
-                if(fDebug)
-                {
-                    LogPrintf("SequentialAlgoRule1 DEBUG: nHeight: %d, nAlgoCount: %d\n", nHeight, nAlgoCount);
-                }
-                if (nAlgoCount > chainparams.GetConsensus().nBlockSequentialAlgoMaxCount1)
-                {
-                    return state.DoS(100, error("%s: too many blocks from same algo", __func__),REJECT_INVALID, "algo-toomany");
-                }
+                return state.DoS(100, error("%s: too many blocks from same algo", __func__),REJECT_INVALID, "algo-toomany");
             }
         }
     }

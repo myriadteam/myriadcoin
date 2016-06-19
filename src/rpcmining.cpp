@@ -16,7 +16,6 @@
 #include "rpcserver.h"
 #include "util.h"
 #include "validationinterface.h"
-#include "myriad_params.h"
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
@@ -261,20 +260,14 @@ Value getmininginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("currentblocksize", (uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblocktx",   (uint64_t)nLastBlockTx));
     obj.push_back(Pair("pow_algo_id",        miningAlgo));
-    obj.push_back(Pair("pow_algo",           GetAlgoName(miningAlgo, GetTime())));
+    obj.push_back(Pair("pow_algo",           GetAlgoName(miningAlgo)));
     obj.push_back(Pair("difficulty",         (double)GetDifficulty(NULL, miningAlgo)));
     obj.push_back(Pair("difficulty_sha256d", (double)GetDifficulty(NULL, ALGO_SHA256D)));
     obj.push_back(Pair("difficulty_scrypt",  (double)GetDifficulty(NULL, ALGO_SCRYPT)));
     obj.push_back(Pair("difficulty_groestl", (double)GetDifficulty(NULL, ALGO_GROESTL)));
     obj.push_back(Pair("difficulty_skein",   (double)GetDifficulty(NULL, ALGO_SKEIN)));
-    if(GetTime() >= nTimeYescryptStart)
-    {
-        obj.push_back(Pair("difficulty_yescrypt",(double)GetDifficulty(NULL, ALGO_CPU)));
-    }
-    else
-    {
-        obj.push_back(Pair("difficulty_qubit",   (double)GetDifficulty(NULL, ALGO_CPU)));
-    }
+    obj.push_back(Pair("difficulty_qubit",   (double)GetDifficulty(NULL, ALGO_QUBIT)));
+    obj.push_back(Pair("difficulty_yescrypt",(double)GetDifficulty(NULL, ALGO_YESCRYPT)));
     obj.push_back(Pair("errors",           GetWarnings("statusbar")));
     obj.push_back(Pair("genproclimit",     (int)GetArg("-genproclimit", -1)));
 //    obj.push_back(Pair("networkhashps",    getnetworkhashps(params, false)));
