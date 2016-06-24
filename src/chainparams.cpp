@@ -70,6 +70,7 @@ public:
         consensus.nBlockAlgoNormalisedWorkDecayStart2 = 932000; // block where weight decay starts
         consensus.nGeoAvgWork_Start = 1400000;
         consensus.nAlgoSwitchBlock1 = 100000000;
+        consensus.nMajorityEnableAlgoSwitch1 = 600; // enable algo switch from qubit to yescrypt with 60% mining consensus
         
         /** 
          * The message start string is designed to be unlikely to occur in normal data.

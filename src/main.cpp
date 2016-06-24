@@ -2946,13 +2946,17 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(error("%s: block's timestamp is too early", __func__),
                              REJECT_INVALID, "time-too-old");
 
-	// Check valid algo
-	if ( (algo == ALGO_QUBIT) && (nHeight >= consensusParams.nAlgoSwitchBlock1) )
-        return state.Invalid(error("%s: invalid QUBIT block", __func__),
-                             REJECT_INVALID, "invalid-algo");
-	if ( (algo == ALGO_YESCRYPT) && (nHeight < consensusParams.nAlgoSwitchBlock1) )
-        return state.Invalid(error("%s: invalid YESCRYPT block", __func__),
-                             REJECT_INVALID, "invalid-algo");
+	// Allow algo switch 1 after 60% of miners have upgraded:
+    if (block.nVersion > 3 && IsSuperMajority(4, pindexPrev, consensusParams.nMajorityEnableAlgoSwitch1, consensusParams))
+    {
+        // Check valid algo
+	    if ( (algo == ALGO_QUBIT) && (nHeight >= consensusParams.nAlgoSwitchBlock1) )
+            return state.Invalid(error("%s: invalid QUBIT block", __func__),
+                                 REJECT_INVALID, "invalid-algo");
+	    if ( (algo == ALGO_YESCRYPT) && (nHeight < consensusParams.nAlgoSwitchBlock1) )
+            return state.Invalid(error("%s: invalid YESCRYPT block", __func__),
+                                 REJECT_INVALID, "invalid-algo");
+    }
 
     if(fCheckpointsEnabled)
     {
@@ -3057,7 +3061,8 @@ bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, CBloc
 
             // Maximum sequence count allowed
             int nMaxSeqCount;
-            if (nHeight > chainparams.GetConsensus().nBlockSequentialAlgoRuleStart3)
+            // check height for nBlockSequentialAlgoMaxCount3 and after 60% of miners have upgraded:
+            if ((nHeight > chainparams.GetConsensus().nBlockSequentialAlgoRuleStart3) && (block.nVersion > 3 && IsSuperMajority(4, pindexPrev, consensusParams.nMajorityEnableAlgoSwitch1, consensusParams)))
                 nMaxSeqCount = chainparams.GetConsensus().nBlockSequentialAlgoMaxCount3;
             else
                 if (nHeight > chainparams.GetConsensus().nBlockSequentialAlgoRuleStart2)

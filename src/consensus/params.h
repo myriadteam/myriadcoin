@@ -46,6 +46,7 @@ struct Params {
     int64_t nBlockAlgoNormalisedWorkDecayStart2;
     int64_t nGeoAvgWork_Start;
     int64_t nAlgoSwitchBlock1;
+    int nMajorityEnableAlgoSwitch1;
     
     int64_t DifficultyAdjustmentInterval() const { return nPowTargetTimespan / nPowTargetSpacingV1; }
     
