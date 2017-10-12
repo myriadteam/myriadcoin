@@ -15,9 +15,8 @@ BOOST_FIXTURE_TEST_SUITE(main_tests, TestingSetup)
 
 static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
 {
-    int maxHalvings = 64;    // TODO FIXME Myriadcoin, passes with 61
+    int maxHalvings = 64;
     CAmount nInitialSubsidy = 1000 * COIN;
-    CAmount nFinalSubsidy = 1 * COIN;
 
     CAmount nPreviousSubsidy = nInitialSubsidy * 2; // for height == 0
     BOOST_CHECK_EQUAL(nPreviousSubsidy, nInitialSubsidy * 2);
@@ -25,14 +24,10 @@ static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
         int nHeight = nHalvings * consensusParams.nSubsidyHalvingInterval;
         CAmount nSubsidy = GetBlockSubsidy(nHeight, consensusParams);
         BOOST_CHECK(nSubsidy <= nInitialSubsidy);
-        if (nHalvings < 10) {
-            BOOST_CHECK_EQUAL(nSubsidy, nPreviousSubsidy / 2);
-        } else {
-            BOOST_CHECK_EQUAL(nSubsidy, nFinalSubsidy);
-        }
+        BOOST_CHECK_EQUAL(nSubsidy, nPreviousSubsidy / 2);
         nPreviousSubsidy = nSubsidy;
     }
-    BOOST_CHECK_EQUAL(GetBlockSubsidy(maxHalvings * consensusParams.nSubsidyHalvingInterval, consensusParams), nFinalSubsidy);
+    BOOST_CHECK_EQUAL(GetBlockSubsidy(maxHalvings * consensusParams.nSubsidyHalvingInterval, consensusParams), 0);
 }
 
 static void TestBlockSubsidyHalvings(int nSubsidyHalvingInterval)
@@ -59,7 +54,7 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
         nSum += nSubsidy * 1000;
         BOOST_CHECK(MoneyRange(nSum));
     }
-    BOOST_CHECK_EQUAL(nSum, 2099999997690000ULL);
+    BOOST_CHECK_EQUAL(nSum, 193576660155242000ULL);
 }
 
 bool ReturnFalse() { return false; }
