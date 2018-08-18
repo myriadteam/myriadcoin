@@ -6,7 +6,6 @@
 #include "chain.h"
 #include "chainparams.h"
 #include "validation.h"
-#include "bignum.h"
 
 /* Moved here from the header, because we need auxpow and the logic
    becomes more involved.  */
@@ -269,11 +268,82 @@ arith_uint256 GetPrevWorkForAlgoWithDecay3(const CBlockIndex& block, int algo)
     return arith_uint256(0);
 }
 
+arith_uint256 uint256_nthRoot(const int root, const arith_uint256 bn)
+{
+    assert(root > 1);
+    if (bn==0)
+        return 0;
+    assert(bn > 0);
+
+    // starting approximation
+    int nRootBits = (bn.bits() + root - 1) / root;
+    int nStartingBits = std::min(8, nRootBits);
+    arith_uint256 bnUpper = bn;
+    bnUpper >>= (nRootBits - nStartingBits)*root;
+    arith_uint256 bnCur = 0;
+    for (int i = nStartingBits - 1; i >= 0; i--) {
+        arith_uint256 bnNext = bnCur;
+        bnNext += 1 << i;
+        arith_uint256 bnPower = 1;
+        for (int j = 0; j < root; j++)
+            bnPower *= bnNext;
+        if (bnPower <= bnUpper)
+            bnCur = bnNext;
+    }
+    if (nRootBits == nStartingBits)
+        return bnCur;
+    bnCur <<= nRootBits - nStartingBits;
+
+    // iterate: cur = cur + (bn / cur^^(root-1) - cur)/root
+    arith_uint256 bnDelta;
+    const arith_uint256 bnRoot = root;
+    int nTerminate = 0;
+    bool fNegativeDelta = false;
+    // this should always converge in fewer steps, but limit just in case
+    for (int it = 0; it < 20; it++)
+    {
+        arith_uint256 bnDenominator = 1;
+        for (int i = 0; i < root - 1; i++)
+            bnDenominator *= bnCur;
+        if (bnCur > bn/bnDenominator)
+            fNegativeDelta = true;
+        if (bnCur == bn/bnDenominator)  // bnDelta=0
+            return bnCur;
+        if (fNegativeDelta) {
+            bnDelta = bnCur - bn/bnDenominator;
+            if (nTerminate == 1)
+                return bnCur - 1;
+            fNegativeDelta = false;
+            if (bnDelta <= bnRoot) {
+                bnCur -= 1;
+                nTerminate = -1;
+                continue;
+            }
+            fNegativeDelta = true;
+        } else {
+            bnDelta = bn/bnDenominator - bnCur;
+            if (nTerminate == -1)
+                return bnCur;
+            if (bnDelta <= bnRoot) {
+                bnCur += 1;
+                nTerminate = 1;
+                continue;
+            }
+        }
+        if (fNegativeDelta) {
+            bnCur -= bnDelta / bnRoot;
+        } else {
+            bnCur += bnDelta / bnRoot;
+        }
+        nTerminate = 0;
+    }
+    return bnCur;
+}
+
 arith_uint256 GetGeometricMeanPrevWork(const CBlockIndex& block)
 {
-    //arith_uint256 bnRes;
+    arith_uint256 bnRes;
     arith_uint256 nBlockWork = GetBlockProofBase(block);
-    CBigNum bnBlockWork = CBigNum(ArithToUint256(nBlockWork));
     int nAlgo = block.GetAlgo();
     
     for (int algo = 0; algo < NUM_ALGOS_IMPL; algo++)
@@ -281,19 +351,17 @@ arith_uint256 GetGeometricMeanPrevWork(const CBlockIndex& block)
         if (algo != nAlgo)
         {
             arith_uint256 nBlockWorkAlt = GetPrevWorkForAlgoWithDecay3(block, algo);
-            CBigNum bnBlockWorkAlt = CBigNum(ArithToUint256(nBlockWorkAlt));
-            if (bnBlockWorkAlt != 0)
-                bnBlockWork *= bnBlockWorkAlt;
+            if (nBlockWorkAlt != 0)
+                nBlockWork *= nBlockWorkAlt;
         }
     }
     // Compute the geometric mean
-    CBigNum bnRes = bnBlockWork.nthRoot(NUM_ALGOS);
+    bnRes = uint256_nthRoot(NUM_ALGOS, nBlockWork);
     
     // Scale to roughly match the old work calculation
     bnRes <<= 8;
     
-    //return bnRes;
-    return UintToArith256(bnRes.getuint256());
+    return bnRes;
 }
 
 arith_uint256 GetBlockProof(const CBlockIndex& block)

@@ -11,7 +11,6 @@
 #include "primitives/block.h"
 #include "uint256.h"
 #include "util.h"
-#include "bignum.h"
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, int algo, const Consensus::Params& params)
 {
