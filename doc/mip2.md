@@ -7,8 +7,8 @@ Status: Under development
 Motivation
 
 
-Myriad uses bits in the nVersion field to indicate which
-PoW algorithm is used.
+Myriadcoin uses bits in the nVersion field to indicate
+which PoW algorithm is used.
 
 Currently algo id 6 and 7 defaults to using SHA256d.
 

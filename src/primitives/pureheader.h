@@ -6,9 +6,9 @@
 #ifndef BITCOIN_PRIMITIVES_PUREHEADER_H
 #define BITCOIN_PRIMITIVES_PUREHEADER_H
 
-#include "serialize.h"
-#include "uint256.h"
-#include "consensus/params.h"
+#include <serialize.h>
+#include <uint256.h>
+#include <consensus/params.h>
 
 /** Multi-Algo definitions used to encode algorithm in nVersion */
 

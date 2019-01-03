@@ -7,8 +7,7 @@ src/myriadcoin-cli
 src/myriadcoin-tx
 src/test/test_myriadcoin
 src/test/test_myriadcoin_fuzzy
-src/test/wallet.backup
-src/qt/test/test_myriad-qt
+src/qt/test/test_myriadcoin-qt
 
 # autoreconf
 Makefile.in
@@ -45,6 +44,12 @@ src/qt/forms/ui_*.h
 
 src/qt/test/moc*.cpp
 
+src/qt/bitcoin-qt.config
+src/qt/bitcoin-qt.creator
+src/qt/bitcoin-qt.creator.user
+src/qt/bitcoin-qt.files
+src/qt/bitcoin-qt.includes
+
 .deps
 .dirstamp
 .libs
@@ -75,13 +80,13 @@ src/qt/test/moc*.cpp
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-myriad-qt
-Myriad-Qt.app
+myriadcoin-qt
+Myriadcoin-Qt.app
+background.tiff*
 
 # Unit-tests
 Makefile.test
 myriadcoin-qt_test
-src/test/buildenv.py
 
 # Resources cpp
 qrc_*.cpp
@@ -102,16 +107,10 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-qa/pull-tester/tests_config.py
-qa/cache/*
+test/config.ini
+test/cache/*
 
 !src/leveldb*/Makefile
-
-!depends/Makefile
-!depends/patches/boost/*.patch
-!depends/patches/native_cdrkit/*.patch
-!depends/patches/qt/*.patch
-!depends/patches/qt46/*.patch
 
 /doc/doxygen/
 

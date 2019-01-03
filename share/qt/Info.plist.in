@@ -29,16 +29,16 @@
   <string>????</string>
 
   <key>CFBundleExecutable</key>
-  <string>Myriad-Qt</string>
+  <string>Myriadcoin-Qt</string>
   
   <key>CFBundleName</key>
-  <string>Myriad-Qt</string>
+  <string>Myriadcoin-Qt</string>
 
   <key>LSHasLocalizedDisplayName</key>
   <true/>
 
   <key>CFBundleIdentifier</key>
-  <string>org.myriadcoin.Myriad-Qt</string>
+  <string>org.myriadcoin.Myriadcoin-Qt</string>
 
   <key>CFBundleURLTypes</key>
   <array>

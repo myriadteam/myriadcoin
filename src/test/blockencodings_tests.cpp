@@ -1,13 +1,13 @@
-// Copyright (c) 2011-2016 The Bitcoin Core developers
+// Copyright (c) 2011-2017 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "blockencodings.h"
-#include "consensus/merkle.h"
-#include "chainparams.h"
-#include "random.h"
+#include <blockencodings.h>
+#include <consensus/merkle.h>
+#include <chainparams.h>
+#include <random.h>
 
-#include "test/test_bitcoin.h"
+#include <test/test_bitcoin.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -30,16 +30,16 @@ static CBlock BuildBlockTestCase() {
     block.vtx.resize(3);
     block.vtx[0] = MakeTransactionRef(tx);
     block.nVersion = 42;
-    block.hashPrevBlock = GetRandHash();
+    block.hashPrevBlock = InsecureRand256();
     block.nBits = 0x207fffff;
 
-    tx.vin[0].prevout.hash = GetRandHash();
+    tx.vin[0].prevout.hash = InsecureRand256();
     tx.vin[0].prevout.n = 0;
     block.vtx[1] = MakeTransactionRef(tx);
 
     tx.vin.resize(10);
     for (size_t i = 0; i < tx.vin.size(); i++) {
-        tx.vin[i].prevout.hash = GetRandHash();
+        tx.vin[i].prevout.hash = InsecureRand256();
         tx.vin[i].prevout.n = 0;
     }
     block.vtx[2] = MakeTransactionRef(tx);
@@ -51,7 +51,7 @@ static CBlock BuildBlockTestCase() {
     return block;
 }
 
-// Number of shared use_counts we expect for a tx we havent touched
+// Number of shared use_counts we expect for a tx we haven't touched
 // == 2 (mempool + our copy from the GetSharedTx call)
 #define SHARED_TX_OFFSET 2
 
@@ -86,21 +86,22 @@ BOOST_AUTO_TEST_CASE(SimpleCheckAlgo)
     block.hashMerkleRoot = BlockMerkleRoot(block, &mutated);
 
     //CBlock block(BuildBlockTestCase());
-    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SHA256D,Params().GetConsensus()).ToString() , "98f6452950f1b08201b5f2ba9ff7a5d7a7abb4534322a0eda9f4453290042bbd");
-    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SCRYPT,Params().GetConsensus()).ToString() , "38f16e4c161e8f6e3985c3ae099b9341362e271cdc6a575aa260afa3b365b88e");
-    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_GROESTL,Params().GetConsensus()).ToString() , "cb9889a9bc2dbef41487987ec930b9655ca43fc91fc450837c03ea2fd4e9afd3");
-    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SKEIN,Params().GetConsensus()).ToString() , "8d105c1d8f2dca9317421574d49b3995f9e6770574766ed335a98fa8921e6233");
-    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_QUBIT,Params().GetConsensus()).ToString() , "545e0014587886f42a6e0963c01fff3b0e419e5cb7aad2d7823ea56bdebaa633");
-    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_YESCRYPT,Params().GetConsensus()).ToString() , "1895648554eaae0206e9ec67f5632cfb22e37963f4e0914da031d62858d8fa9a");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SHA256D,Params().GetConsensus()).ToString() , "bacf6245ad841fcfd18af03fe32a3a1f182e2229f6015ac003725d5e0305aaa3");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SCRYPT,Params().GetConsensus()).ToString() , "2ac0f3c10dc801835c0adf049579d6fa673c258155ae43fa4c2e084dd4f951db");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_GROESTL,Params().GetConsensus()).ToString() , "30ae928a0725ca2c8b5a89866a2c1c24fc312fc51b444ecc9a7e6ca58e0f14e5");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_SKEIN,Params().GetConsensus()).ToString() , "c938e0667fbca99c5d57374c9c517e5257801257123b521c72c836632a585859");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_QUBIT,Params().GetConsensus()).ToString() , "8f8e107327fca43c9c191ba0c8a326106cc65fe98596362b12455bf510632cc2");
+    BOOST_CHECK_EQUAL(block.GetPoWHash(ALGO_YESCRYPT,Params().GetConsensus()).ToString() , "1d31a0941db6e1d2ab7503a7026dadd0dc01d49d12e561ca574c7fd945d23a7b");
 }
 
 BOOST_AUTO_TEST_CASE(SimpleRoundTripTest)
 {
-    CTxMemPool pool(CFeeRate(0));
+    CTxMemPool pool;
     TestMemPoolEntryHelper entry;
     CBlock block(BuildBlockTestCase());
 
     pool.addUnchecked(block.vtx[2]->GetHash(), entry.FromTx(*block.vtx[2]));
+    LOCK(pool.cs);
     BOOST_CHECK_EQUAL(pool.mapTx.find(block.vtx[2]->GetHash())->GetSharedTx().use_count(), SHARED_TX_OFFSET + 0);
 
     // Do a simple ShortTxIDs RT
@@ -157,12 +158,12 @@ public:
     std::vector<uint64_t> shorttxids;
     std::vector<PrefilledTransaction> prefilledtxn;
 
-    TestHeaderAndShortIDs(const CBlockHeaderAndShortTxIDs& orig) {
+    explicit TestHeaderAndShortIDs(const CBlockHeaderAndShortTxIDs& orig) {
         CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
         stream << orig;
         stream >> *this;
     }
-    TestHeaderAndShortIDs(const CBlock& block) :
+    explicit TestHeaderAndShortIDs(const CBlock& block) :
         TestHeaderAndShortIDs(CBlockHeaderAndShortTxIDs(block, true)) {}
 
     uint64_t GetShortID(const uint256& txhash) const {
@@ -195,11 +196,12 @@ public:
 
 BOOST_AUTO_TEST_CASE(NonCoinbasePreforwardRTTest)
 {
-    CTxMemPool pool(CFeeRate(0));
+    CTxMemPool pool;
     TestMemPoolEntryHelper entry;
     CBlock block(BuildBlockTestCase());
 
     pool.addUnchecked(block.vtx[2]->GetHash(), entry.FromTx(*block.vtx[2]));
+    LOCK(pool.cs);
     BOOST_CHECK_EQUAL(pool.mapTx.find(block.vtx[2]->GetHash())->GetSharedTx().use_count(), SHARED_TX_OFFSET + 0);
 
     uint256 txhash;
@@ -261,11 +263,12 @@ BOOST_AUTO_TEST_CASE(NonCoinbasePreforwardRTTest)
 
 BOOST_AUTO_TEST_CASE(SufficientPreforwardRTTest)
 {
-    CTxMemPool pool(CFeeRate(0));
+    CTxMemPool pool;
     TestMemPoolEntryHelper entry;
     CBlock block(BuildBlockTestCase());
 
     pool.addUnchecked(block.vtx[1]->GetHash(), entry.FromTx(*block.vtx[1]));
+    LOCK(pool.cs);
     BOOST_CHECK_EQUAL(pool.mapTx.find(block.vtx[1]->GetHash())->GetSharedTx().use_count(), SHARED_TX_OFFSET + 0);
 
     uint256 txhash;
@@ -311,7 +314,7 @@ BOOST_AUTO_TEST_CASE(SufficientPreforwardRTTest)
 
 BOOST_AUTO_TEST_CASE(EmptyBlockRoundTripTest)
 {
-    CTxMemPool pool(CFeeRate(0));
+    CTxMemPool pool;
     CMutableTransaction coinbase;
     coinbase.vin.resize(1);
     coinbase.vin[0].scriptSig.resize(10);
@@ -322,7 +325,7 @@ BOOST_AUTO_TEST_CASE(EmptyBlockRoundTripTest)
     block.vtx.resize(1);
     block.vtx[0] = MakeTransactionRef(std::move(coinbase));
     block.nVersion = 42;
-    block.hashPrevBlock = GetRandHash();
+    block.hashPrevBlock = InsecureRand256();
     block.nBits = 0x207fffff;
 
     bool mutated;
@@ -355,7 +358,7 @@ BOOST_AUTO_TEST_CASE(EmptyBlockRoundTripTest)
 
 BOOST_AUTO_TEST_CASE(TransactionsRequestSerializationTest) {
     BlockTransactionsRequest req1;
-    req1.blockhash = GetRandHash();
+    req1.blockhash = InsecureRand256();
     req1.indexes.resize(4);
     req1.indexes[0] = 0;
     req1.indexes[1] = 1;
