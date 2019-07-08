@@ -1,7 +1,7 @@
 Contributing to Myriad
 ============================
 
-Myriad operates an open contributor model where anyone is
+Myriadcoin operates an open contributor model where anyone is
 welcome to contribute towards development in the form of peer review, testing
 and patches. This document explains the practical process and guidelines for
 contributing.
@@ -57,12 +57,12 @@ the pull request affects. Valid areas as:
 
   - *Consensus* for changes to consensus critical code
   - *Docs* for changes to the documentation
-  - *Qt* for changes to myriad-qt
+  - *Qt* for changes to myriadcoin-qt
   - *Mining* for changes to the mining code
   - *Net* or *P2P* for changes to the peer-to-peer network code
   - *RPC/REST/ZMQ* for changes to the RPC, REST or ZMQ APIs
   - *Scripts and tools* for changes to the scripts and tools
-  - *Tests* for changes to the Myriad unit tests or QA tests
+  - *Tests* for changes to the Myriadcoin unit tests or QA tests
   - *Trivial* should **only** be used for PRs that do not change generated
     executable code. Notably, refactors (change of function arguments and code
     reorganization) and changes in behavior should **not** be marked as trivial.
@@ -157,11 +157,11 @@ where possible keep them short, uncomplex and easy to verify.
 "Decision Making" Process
 -------------------------
 
-The following applies to code changes to the Myriad project (and related
+The following applies to code changes to the Myriadcoin project (and related
 projects such as libsecp256k1), and is not to be confused with overall Myriad
 Network Protocol consensus changes.
 
-Whether a pull request is merged into Myriad rests with the project merge
+Whether a pull request is merged into Myriadcoin rests with the project merge
 maintainers and ultimately the project lead.
 
 Maintainers will take into consideration if a patch is in line with the general
@@ -179,7 +179,7 @@ In general, all pull requests must:
   - where bugs are fixed, where possible, there should be unit tests
     demonstrating the bug and also proving the fix. This helps prevent regression.
 
-Patches that change Myriad consensus rules are considerably more involved than
+Patches that change Myriadcoin consensus rules are considerably more involved than
 normal because they affect the entire ecosystem and so must be preceded by
 extensive mailing list discussions and have a numbered BIP. While each case will
 be different, one should be prepared to expend more time and effort than for
@@ -220,7 +220,7 @@ higher in terms of discussion and peer review requirements, keeping in mind that
 mistakes could be very costly to the wider community. This includes refactoring
 of consensus critical code.
 
-Where a patch set proposes to change the Myriad consensus, it must have been
+Where a patch set proposes to change the Myriadcoin consensus, it must have been
 discussed extensively on the mailing list and IRC, be accompanied by a widely
 discussed BIP and have a generally widely perceived technical consensus of being
 a worthwhile change based on the judgement of the maintainers.
@@ -229,7 +229,7 @@ a worthwhile change based on the judgement of the maintainers.
 Release Policy
 --------------
 
-The project leader is the release manager for each Myriad release.
+The project leader is the release manager for each Myriadcoin release.
 
 Copyright
 ---------

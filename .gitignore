@@ -8,7 +8,7 @@ src/myriadcoin-tx
 src/test/test_myriadcoin
 src/test/test_myriadcoin_fuzzy
 src/test/wallet.backup
-src/qt/test/test_myriad-qt
+src/qt/test/test_myriadcoin-qt
 
 # autoreconf
 Makefile.in
@@ -75,8 +75,8 @@ src/qt/test/moc*.cpp
 # Compilation and Qt preprocessor part
 *.qm
 Makefile
-myriad-qt
-Myriad-Qt.app
+myriadcoin-qt
+Myriadcoin-Qt.app
 
 # Unit-tests
 Makefile.test

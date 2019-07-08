@@ -56,8 +56,8 @@ static int AppInitRawTx(int argc, char* argv[])
         // First part of help message is specific to this utility
         std::string strUsage = strprintf(_("%s bitcoin-tx utility version"), _(PACKAGE_NAME)) + " " + FormatFullVersion() + "\n\n" +
             _("Usage:") + "\n" +
-              "  myriadcoin-tx [options] <hex-tx> [commands]  " + _("Update hex-encoded myriad transaction") + "\n" +
-              "  myriadcoin-tx [options] -create [commands]   " + _("Create hex-encoded myriad transaction") + "\n" +
+              "  myriadcoin-tx [options] <hex-tx> [commands]  " + _("Update hex-encoded myriadcoin transaction") + "\n" +
+              "  myriadcoin-tx [options] -create [commands]   " + _("Create hex-encoded myriadcoin transaction") + "\n" +
               "\n";
 
         fprintf(stdout, "%s", strUsage.c_str());

@@ -607,8 +607,8 @@ boost::filesystem::path static StartupShortcutPath()
     if (chain == CBaseChainParams::MAIN)
         return GetSpecialFolderPath(CSIDL_STARTUP) / "Myriad.lnk";
     if (chain == CBaseChainParams::TESTNET) // Remove this special case when CBaseChainParams::TESTNET = "testnet4"
-        return GetSpecialFolderPath(CSIDL_STARTUP) / "Myriad (testnet).lnk";
-    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("Myriad (%s).lnk", chain);
+        return GetSpecialFolderPath(CSIDL_STARTUP) / "Myriadcoin (testnet).lnk";
+    return GetSpecialFolderPath(CSIDL_STARTUP) / strprintf("Myriadcoin (%s).lnk", chain);
 }
 
 bool GetStartOnSystemStartup()
@@ -705,7 +705,7 @@ boost::filesystem::path static GetAutostartFilePath()
 {
     std::string chain = ChainNameFromCommandLine();
     if (chain == CBaseChainParams::MAIN)
-        return GetAutostartDir() / "myriad.desktop";
+        return GetAutostartDir() / "myriadcoin.desktop";
     return GetAutostartDir() / strprintf("bitcoin-%s.lnk", chain);
 }
 
@@ -751,7 +751,7 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         if (chain == CBaseChainParams::MAIN)
             optionFile << "Name=Myriad\n";
         else
-            optionFile << strprintf("Name=Myriad (%s)\n", chain);
+            optionFile << strprintf("Name=Myriadcoin (%s)\n", chain);
         optionFile << "Exec=" << pszExePath << strprintf(" -min -testnet=%d -regtest=%d\n", GetBoolArg("-testnet", false), GetBoolArg("-regtest", false));
         optionFile << "Terminal=false\n";
         optionFile << "Hidden=false\n";

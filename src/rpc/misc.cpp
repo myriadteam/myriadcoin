@@ -316,9 +316,9 @@ UniValue createmultisig(const JSONRPCRequest& request)
 
             "\nArguments:\n"
             "1. nrequired      (numeric, required) The number of required signatures out of the n keys or addresses.\n"
-            "2. \"keys\"       (string, required) A json array of keys which are myriad addresses or hex-encoded public keys\n"
+            "2. \"keys\"       (string, required) A json array of keys which are myriadcoin addresses or hex-encoded public keys\n"
             "     [\n"
-            "       \"key\"    (string) myriad address or hex-encoded public key\n"
+            "       \"key\"    (string) myriadcoin address or hex-encoded public key\n"
             "       ,...\n"
             "     ]\n"
 

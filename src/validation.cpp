@@ -48,7 +48,7 @@
 #include <boost/thread.hpp>
 
 #if defined(NDEBUG)
-# error "Myriad cannot be compiled without assertions."
+# error "Myriadcoin cannot be compiled without assertions."
 #endif
 
 /**

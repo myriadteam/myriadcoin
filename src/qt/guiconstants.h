@@ -48,9 +48,9 @@ static const int MAX_URI_LENGTH = 255;
 /* Number of frames in spinner animation */
 #define SPINNER_FRAMES 36
 
-#define QAPP_ORG_NAME "Myriad"
+#define QAPP_ORG_NAME "Myriadcoin"
 #define QAPP_ORG_DOMAIN "myriadcoin.org"
-#define QAPP_APP_NAME_DEFAULT "Myriad-Qt"
-#define QAPP_APP_NAME_TESTNET "Myriad-Qt-testnet"
+#define QAPP_APP_NAME_DEFAULT "Myriadcoin-Qt"
+#define QAPP_APP_NAME_TESTNET "Myriadcoin-Qt-testnet"
 
 #endif // BITCOIN_QT_GUICONSTANTS_H
