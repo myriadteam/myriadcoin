@@ -3,21 +3,21 @@ AC_PREREQ([2.60])
 define(_CLIENT_VERSION_MAJOR, 0)
 define(_CLIENT_VERSION_MINOR, 14)
 define(_CLIENT_VERSION_REVISION, 5)
-define(_CLIENT_VERSION_BUILD, 1)
+define(_CLIENT_VERSION_BUILD, 2)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 
 
 define(_COPYRIGHT_YEAR, 2017)
 define(_COPYRIGHT_HOLDERS,[The %s developers])
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Myriad Core]])
-AC_INIT([Myriad Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/myriadteam/myriadcoin/issues],[myriadcoin],[http://www.myriadcoin.org/])
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION,[[Myriadcoin Core]])
+AC_INIT([Myriadcoin Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[https://github.com/myriadteam/myriadcoin/issues],[myriadcoin],[http://www.myriadcoin.org/])
 AC_CONFIG_SRCDIR([src/validation.cpp])
 AC_CONFIG_HEADERS([src/config/bitcoin-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
 BITCOIN_DAEMON_NAME=myriadcoind
-BITCOIN_GUI_NAME=myriad-qt
+BITCOIN_GUI_NAME=myriadcoin-qt
 BITCOIN_CLI_NAME=myriadcoin-cli
 BITCOIN_TX_NAME=myriadcoin-tx
 

@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#define BOOST_TEST_MODULE Myriad Test Suite
+#define BOOST_TEST_MODULE Myriadcoin Test Suite
 
 #include "test_bitcoin.h"
 
