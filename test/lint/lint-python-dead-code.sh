@@ -16,5 +16,5 @@ export LC_ALL=C
 #
 #vulture \
 #    --min-confidence 60 \
-#    --ignore-names "argtypes,connection_lost,connection_made,converter,data_received,daemon,errcheck,get_ecdh_key,get_privkey,is_compressed,is_fullyvalid,msg_generic,on_*,optionxform,restype,set_privkey,profile_with_perf" \
+#    --ignore-names "argtypes,connection_lost,connection_made,converter,data_received,daemon,errcheck,is_compressed,is_valid,verify_ecdsa,msg_generic,on_*,optionxform,restype,profile_with_perf" \
 #    $(git ls-files -- "*.py" ":(exclude)contrib/" ":(exclude)test/functional/data/invalid_txs.py")
