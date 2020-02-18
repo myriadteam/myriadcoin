@@ -31,6 +31,8 @@
 
 #include <memory>
 #include <stdint.h>
+#include <string>
+#include <utility>
 
 /**
  * Return average network hashes per second based on the last 'lookup' blocks,
@@ -246,14 +248,14 @@ static UniValue getmininginfo(const JSONRPCRequest& request)
     if (BlockAssembler::m_last_block_num_txs) obj.pushKV("currentblocktx", *BlockAssembler::m_last_block_num_txs);
     obj.pushKV("pow_algo_id",          miningAlgo);
     obj.pushKV("pow_algo",             GetAlgoName(miningAlgo, GetTime(), Params().GetConsensus()));
-    obj.pushKV("difficulty",           (double)GetDifficulty(chainActive.Tip(), miningAlgo));
-    obj.pushKV("difficulty_sha256d",   (double)GetDifficulty(chainActive.Tip(), ALGO_SHA256D));
-    obj.pushKV("difficulty_scrypt",    (double)GetDifficulty(chainActive.Tip(), ALGO_SCRYPT));
-    obj.pushKV("difficulty_groestl",   (double)GetDifficulty(chainActive.Tip(), ALGO_GROESTL));
-    obj.pushKV("difficulty_skein",     (double)GetDifficulty(chainActive.Tip(), ALGO_SKEIN));
-    obj.pushKV("difficulty_qubit",     (double)GetDifficulty(chainActive.Tip(), ALGO_QUBIT));
-    obj.pushKV("difficulty_yescrypt",  (double)GetDifficulty(chainActive.Tip(), ALGO_YESCRYPT));
-    obj.pushKV("difficulty_argon2d",   (double)GetDifficulty(chainActive.Tip(), ALGO_ARGON2D));
+    obj.pushKV("difficulty",           (double)GetDifficulty(nullptr, miningAlgo));
+    obj.pushKV("difficulty_sha256d",   (double)GetDifficulty(nullptr, ALGO_SHA256D));
+    obj.pushKV("difficulty_scrypt",    (double)GetDifficulty(nullptr, ALGO_SCRYPT));
+    obj.pushKV("difficulty_groestl",   (double)GetDifficulty(nullptr, ALGO_GROESTL));
+    obj.pushKV("difficulty_skein",     (double)GetDifficulty(nullptr, ALGO_SKEIN));
+    obj.pushKV("difficulty_qubit",     (double)GetDifficulty(nullptr, ALGO_QUBIT));
+    obj.pushKV("difficulty_yescrypt",  (double)GetDifficulty(nullptr, ALGO_YESCRYPT));
+    obj.pushKV("difficulty_argon2d",   (double)GetDifficulty(nullptr, ALGO_ARGON2D));
     obj.pushKV("networkhashps",        getnetworkhashps(request));
     obj.pushKV("pooledtx",             (uint64_t)mempool.size());
     obj.pushKV("chain",                Params().NetworkIDString());
@@ -404,7 +406,7 @@ static UniValue getblocktemplate(const JSONRPCRequest& request)
             "}\n"
                 },
                 RPCExamples{
-                    HelpExampleCli("getblocktemplate", "{\"rules\": [\"segwit\"]}")
+                    HelpExampleCli("getblocktemplate", "'{\"rules\": [\"segwit\"]}'")
             + HelpExampleRpc("getblocktemplate", "{\"rules\": [\"segwit\"]}")
                 },
             }.ToString());

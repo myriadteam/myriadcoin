@@ -51,6 +51,7 @@ QString BitcoinUnits::longName(int unit)
     case BTC: return QString("XMY");
     case mBTC: return QString("mXMY");
     case uBTC: return QString::fromUtf8("μXMY");
+    case SAT: return QString("octibit (obi)");
     default: return QString("???");
     }
 }
@@ -60,7 +61,7 @@ QString BitcoinUnits::shortName(int unit)
     switch(unit)
     {
     case uBTC: return QString::fromUtf8("μXMY");
-    case SAT: return QString("1e-8XMY");
+    case SAT: return QString("obi");
     default: return longName(unit);
     }
 }
@@ -74,7 +75,8 @@ QString BitcoinUnits::description(int unit)
     case BTC: return QString("Myriadcoins");
     case mBTC: return QString("Milli-Myriadcoins (1 / 1" THIN_SP_UTF8 "000)");
     case uBTC: return QString("Micro-Myriadcoins (1 / 1" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
-    default: return QString("???");
+    case SAT: return QString("octibit (obi) (1 / 100" THIN_SP_UTF8 "000" THIN_SP_UTF8 "000)");
+    default: return QString("");
     }
 }
 

@@ -63,8 +63,6 @@ double GetDifficulty(const CChain& chain, const CBlockIndex* blockindex, int alg
     unsigned int nBits;
     unsigned int powLimit = UintToArith256(Params().GetConsensus().powLimit).GetCompact();
 
-    assert(blockindex);
-
     if (blockindex == nullptr)
     {
         if (chain.Tip() == nullptr)
@@ -75,12 +73,16 @@ double GetDifficulty(const CChain& chain, const CBlockIndex* blockindex, int alg
             if (blockindex == nullptr)
                 nBits = powLimit;
             else
+            {
+                assert(blockindex);
                 nBits = blockindex->nBits;
+            }
         }
     }
-    else
+    else {
+        assert(blockindex);
         nBits = blockindex->nBits;
-    assert(blockindex);
+    }
 
     int nShift = (nBits >> 24) & 0xff;
     double dDiff =
@@ -169,7 +171,7 @@ UniValue blockheaderToJSON(const CBlockIndex* tip, const CBlockIndex* blockindex
     int algo = GetAlgo(blockindex->nVersion);
     result.pushKV("pow_algo_id", algo);
     result.pushKV("pow_algo", GetAlgoName(algo, blockindex->nTime, Params().GetConsensus()));
-    result.pushKV("difficulty", GetDifficulty(blockindex));
+    result.pushKV("difficulty", GetDifficulty(blockindex, algo));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
     result.pushKV("nTx", (uint64_t)blockindex->nTx);
 
@@ -222,9 +224,12 @@ UniValue blockToJSON(const CBlock& block, const CBlockIndex* tip, const CBlockIn
     }
     result.pushKV("pow_algo_id", algo);
     result.pushKV("pow_algo", GetAlgoName(algo, blockindex->nTime, Params().GetConsensus()));
-    result.pushKV("difficulty", GetDifficulty(blockindex));
+    result.pushKV("difficulty", GetDifficulty(blockindex, algo));
     result.pushKV("chainwork", blockindex->nChainWork.GetHex());
     result.pushKV("nTx", (uint64_t)blockindex->nTx);
+
+    if (block.auxpow)
+        result.pushKV("auxpow", AuxpowToJSON(*block.auxpow));
 
     if (blockindex->pprev)
         result.pushKV("previousblockhash", blockindex->pprev->GetBlockHash().GetHex());
@@ -449,7 +454,7 @@ static UniValue getdifficulty(const JSONRPCRequest& request)
             }.ToString());
 
     LOCK(cs_main);
-    return GetDifficulty(chainActive.Tip(), miningAlgo);
+    return GetDifficulty(nullptr, miningAlgo);
 }
 
 static std::string EntryDescriptionString()
@@ -1418,14 +1423,14 @@ UniValue getblockchaininfo(const JSONRPCRequest& request)
     obj.pushKV("blocks",                (int)chainActive.Height());
     obj.pushKV("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1);
     obj.pushKV("bestblockhash",         tip->GetBlockHash().GetHex());
-    obj.pushKV("difficulty",            (double)GetDifficulty(tip, miningAlgo));
-    obj.pushKV("difficulty_sha256d",    (double)GetDifficulty(tip, ALGO_SHA256D));
-    obj.pushKV("difficulty_scrypt",     (double)GetDifficulty(tip, ALGO_SCRYPT));
-    obj.pushKV("difficulty_groestl",    (double)GetDifficulty(tip, ALGO_GROESTL));
-    obj.pushKV("difficulty_skein",      (double)GetDifficulty(tip, ALGO_SKEIN));
-    obj.pushKV("difficulty_qubit",      (double)GetDifficulty(tip, ALGO_QUBIT));
-    obj.pushKV("difficulty_yescrypt",   (double)GetDifficulty(tip, ALGO_YESCRYPT));
-    obj.pushKV("difficulty_argon2d",    (double)GetDifficulty(tip, ALGO_ARGON2D));
+    obj.pushKV("difficulty",            (double)GetDifficulty(nullptr, miningAlgo));
+    obj.pushKV("difficulty_sha256d",    (double)GetDifficulty(nullptr, ALGO_SHA256D));
+    obj.pushKV("difficulty_scrypt",     (double)GetDifficulty(nullptr, ALGO_SCRYPT));
+    obj.pushKV("difficulty_groestl",    (double)GetDifficulty(nullptr, ALGO_GROESTL));
+    obj.pushKV("difficulty_skein",      (double)GetDifficulty(nullptr, ALGO_SKEIN));
+    obj.pushKV("difficulty_qubit",      (double)GetDifficulty(nullptr, ALGO_QUBIT));
+    obj.pushKV("difficulty_yescrypt",   (double)GetDifficulty(nullptr, ALGO_YESCRYPT));
+    obj.pushKV("difficulty_argon2d",    (double)GetDifficulty(nullptr, ALGO_ARGON2D));
     obj.pushKV("mediantime",            (int64_t)tip->GetMedianTimePast());
     obj.pushKV("verificationprogress",  GuessVerificationProgress(Params().TxData(), tip));
     obj.pushKV("initialblockdownload",  IsInitialBlockDownload());

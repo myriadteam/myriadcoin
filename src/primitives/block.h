@@ -12,7 +12,7 @@
 #include <serialize.h>
 #include <uint256.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 /** Nodes collect new transactions into a block, hash them into a hash tree,
  * and scan through nonce values to make the block's hash satisfy proof-of-work
@@ -25,7 +25,7 @@ class CBlockHeader : public CPureBlockHeader
 {
 public:
     // auxpow (if this is a merge-minded block)
-    boost::shared_ptr<CAuxPow> auxpow;
+    std::shared_ptr<CAuxPow> auxpow;
 
     CBlockHeader()
     {
@@ -36,13 +36,13 @@ public:
 
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
-        READWRITE(*(CPureBlockHeader*)this);
+        READWRITEAS(CPureBlockHeader, *this);
 
         if (this->IsAuxpow())
         {
             if (ser_action.ForRead())
-                auxpow.reset (new CAuxPow());
-            assert(auxpow);
+                auxpow = std::make_shared<CAuxPow>();
+            assert(auxpow != nullptr);
             READWRITE(*auxpow);
         } else if (ser_action.ForRead())
             auxpow.reset();

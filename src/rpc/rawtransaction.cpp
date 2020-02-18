@@ -19,6 +19,7 @@
 #include <policy/rbf.h>
 #include <primitives/transaction.h>
 #include <psbt.h>
+#include <random.h>
 #include <rpc/rawtransaction.h>
 #include <rpc/server.h>
 #include <rpc/util.h>
@@ -352,7 +353,7 @@ static UniValue verifytxoutproof(const JSONRPCRequest& request)
     return res;
 }
 
-CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, const UniValue& rbf)
+CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniValue& outputs_in, const UniValue& locktime, bool rbf)
 {
     if (inputs_in.isNull() || outputs_in.isNull())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, arguments 1 and 2 must be non-null");
@@ -370,8 +371,6 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
         rawTx.nLockTime = nLockTime;
     }
 
-    bool rbfOptIn = rbf.isTrue();
-
     for (unsigned int idx = 0; idx < inputs.size(); idx++) {
         const UniValue& input = inputs[idx];
         const UniValue& o = input.get_obj();
@@ -386,7 +385,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
             throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, vout must be positive");
 
         uint32_t nSequence;
-        if (rbfOptIn) {
+        if (rbf) {
             nSequence = MAX_BIP125_RBF_SEQUENCE; /* CTxIn::SEQUENCE_FINAL - 2 */
         } else if (rawTx.nLockTime) {
             nSequence = CTxIn::SEQUENCE_FINAL - 1;
@@ -458,7 +457,7 @@ CMutableTransaction ConstructTransaction(const UniValue& inputs_in, const UniVal
         }
     }
 
-    if (!rbf.isNull() && rawTx.vin.size() > 0 && rbfOptIn != SignalsOptInRBF(CTransaction(rawTx))) {
+    if (rbf && rawTx.vin.size() > 0 && !SignalsOptInRBF(CTransaction(rawTx))) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter combination: Sequence number(s) contradict replaceable option");
     }
 
@@ -528,7 +527,11 @@ static UniValue createrawtransaction(const JSONRPCRequest& request)
         }, true
     );
 
-    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], request.params[3]);
+    bool rbf = false;
+    if (!request.params[3].isNull()) {
+        rbf = request.params[3].isTrue();
+    }
+    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf);
 
     return EncodeHexTx(CTransaction(rawTx));
 }
@@ -1632,7 +1635,11 @@ UniValue createpsbt(const JSONRPCRequest& request)
         }, true
     );
 
-    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], request.params[3]);
+    bool rbf = false;
+    if (!request.params[3].isNull()) {
+        rbf = request.params[3].isTrue();
+    }
+    CMutableTransaction rawTx = ConstructTransaction(request.params[0], request.params[1], request.params[2], rbf);
 
     // Make a blank psbt
     PartiallySignedTransaction psbtx;
@@ -1855,8 +1862,30 @@ UniValue joinpsbts(const JSONRPCRequest& request)
         merged_psbt.unknown.insert(psbt.unknown.begin(), psbt.unknown.end());
     }
 
+    // Generate list of shuffled indices for shuffling inputs and outputs of the merged PSBT
+    std::vector<int> input_indices(merged_psbt.inputs.size());
+    std::iota(input_indices.begin(), input_indices.end(), 0);
+    std::vector<int> output_indices(merged_psbt.outputs.size());
+    std::iota(output_indices.begin(), output_indices.end(), 0);
+
+    // Shuffle input and output indicies lists
+    Shuffle(input_indices.begin(), input_indices.end(), FastRandomContext());
+    Shuffle(output_indices.begin(), output_indices.end(), FastRandomContext());
+
+    PartiallySignedTransaction shuffled_psbt;
+    shuffled_psbt.tx = CMutableTransaction();
+    shuffled_psbt.tx->nVersion = merged_psbt.tx->nVersion;
+    shuffled_psbt.tx->nLockTime = merged_psbt.tx->nLockTime;
+    for (int i : input_indices) {
+        shuffled_psbt.AddInput(merged_psbt.tx->vin[i], merged_psbt.inputs[i]);
+    }
+    for (int i : output_indices) {
+        shuffled_psbt.AddOutput(merged_psbt.tx->vout[i], merged_psbt.outputs[i]);
+    }
+    shuffled_psbt.unknown.insert(merged_psbt.unknown.begin(), merged_psbt.unknown.end());
+
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
-    ssTx << merged_psbt;
+    ssTx << shuffled_psbt;
     return EncodeBase64((unsigned char*)ssTx.data(), ssTx.size());
 }
 

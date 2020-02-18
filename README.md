@@ -21,10 +21,12 @@ the Myriadcoin Core software, see http://www.myriadcoin.org, or read the
 Myriadcoin is distinct from Bitcoin in that it pioneered the use of multiple independent 
 PoW algorithms on the same chain.
 
+Myriadcoin improvements are documented as MIPs. See [doc/mips.md](doc/mips.md).
+
 License
 -------
 
-Myriadcoin is a fork of Bitcoin Core and inherits the terms of the MIT license. See 
+Myriadcoin is a software fork of Bitcoin Core and inherits the terms of the MIT license. See
 [COPYING](COPYING) for more information or see https://opensource.org/licenses/MIT.
 
 Development Process
