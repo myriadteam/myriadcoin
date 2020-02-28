@@ -447,7 +447,7 @@ public:
         consensus.nPowTargetSpacingV2 = 60; // new target time for block spacing across all algorithms
         consensus.nAveragingInterval = 10; // number of blocks to take the timespan of
 
-        consensus.nStartAuxPow = 0;
+        consensus.nStartAuxPow = 150;
         consensus.nAuxpowChainId = 0x005A;
         consensus.fStrictChainId = false;
 

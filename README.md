@@ -42,7 +42,7 @@ The developer [subreddit](https://www.reddit.com/r/myriadcoin)
 should be used to discuss complicated or controversial changes before working
 on a patch set.
 
-Developer IRC can be found on Freenode at ##myriadcoin.
+Developer IRC can be found on Freenode at #myriadcoin.
 
 Testing
 -------
